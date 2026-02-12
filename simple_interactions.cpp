@@ -2,8 +2,8 @@
 // It just throws a bunch of charges on the screen and let's
 // coloumbic force handle forces on them
 
-#include <iostream>
 #include <memory>
+#include <raylib.h>
 
 #include "src/charge.h" // includes vector, raylib, raymath
 
@@ -28,7 +28,6 @@ int main()
         {
             c->ComputeForces(charges);
             c->Update(GetFrameTime());
-            cout << "Vel magnitude : " << Vector2LengthSqr(c->vel) << endl;
         }
         BeginDrawing();
         ClearBackground(BLACK);

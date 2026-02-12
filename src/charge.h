@@ -39,6 +39,14 @@ class Charge
         vel += (force / mass) * (deltaTime);
         vel = Vector2ClampValue(vel, 0, MAX_SPEED); // limit speed from blowing up
         pos += vel * deltaTime;
+        if (pos.y + RADIUS > GetScreenHeight() || pos.y < RADIUS)
+        {
+            vel.y = -vel.y;
+        }
+        if (pos.x + RADIUS > GetScreenWidth() || pos.x < RADIUS)
+        {
+            vel.x = -vel.x;
+        }
     }
     void ComputeForces(std::vector<std::unique_ptr<Charge>>& charges)
     {
