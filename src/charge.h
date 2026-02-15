@@ -5,9 +5,9 @@
 #include <vector>
 // Convention assumes mass of electron is 1;
 // mass of proton is therefore 1836
-#define RADIUS 5.0f // assume same radius for both proton and electron
-#define K 100.0f    // coulomb law constant
-#define EPSI 0.01f  // force softening
+#define RADIUS 5.0f  // assume same radius for both proton and electron
+#define K 1000000.0f // coulomb law constant
+#define EPSI 0.01f   // force softening
 #define MAX_SPEED 500.0f
 
 class Charge
@@ -32,6 +32,10 @@ class Charge
     void Draw()
     {
         DrawCircleV(pos, radius, color);
+        float rot = atan2f(force.x, force.y) * RAD2DEG;
+        DrawTexturePro(arrow_tx, {0, 0, (float) arrow_tx.width, (float) arrow_tx.height},
+                       {pos.x, pos.y, (float) arrow_tx.width, (float) arrow_tx.height},
+                       {0, (float) arrow_tx.height / 2}, rot, WHITE);
     }
     void Update(float deltaTime)
     {
@@ -50,12 +54,29 @@ class Charge
     }
     void ComputeForces(std::vector<std::unique_ptr<Charge>>& charges)
     {
+        ResetForce();
+
         for (auto& c : charges)
         {
             if (c.get() == this) // prevent self check
                 continue;
             force += Vector2Normalize(pos - c->pos) * (K / (Vector2DistanceSqr(c->pos, pos) + EPSI)) * (q * c->q);
         }
+    }
+    static void LoadTextures()
+    {
+        arrow_img = LoadImage("img/arrow.png");
+        ImageResize(&arrow_img, 10, 10);
+        arrow_tx = LoadTextureFromImage(arrow_img);
+        UnloadImage(arrow_img);
+    }
+
+  private:
+    inline static Image arrow_img;
+    inline static Texture2D arrow_tx;
+    void ResetForce()
+    {
+        force = {0, 0};
     }
 };
 
@@ -71,7 +92,7 @@ class Electron : public Charge
 class Proton : public Charge
 {
   public:
-    Proton(Vector2 _pos, Vector2 _vel = {0}, Vector2 _force = {0}) : Charge(1, 1, RADIUS, _pos, _vel, _force)
+    Proton(Vector2 _pos, Vector2 _vel = {0}, Vector2 _force = {0}) : Charge(1, 1836, RADIUS, _pos, _vel, _force)
     {
         color = BLUE;
     }
