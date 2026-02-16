@@ -41,13 +41,25 @@ class Charge
         vel = Vector2ClampValue(vel, 0, MAX_SPEED); // limit speed from blowing up
         pos += vel * deltaTime;
         // borders collision
-        if (pos.y + RADIUS > GetScreenHeight() || pos.y < RADIUS)
+        if (pos.y + RADIUS > GetScreenHeight())
         {
-            vel.y = -vel.y;
+            pos.y = GetScreenHeight() - RADIUS;
+            vel.y *= -1;
         }
-        if (pos.x + RADIUS > GetScreenWidth() || pos.x < RADIUS)
+        if (pos.y < RADIUS)
         {
-            vel.x = -vel.x;
+            pos.y = 2 * RADIUS;
+            vel.y *= -1;
+        }
+        if (pos.x + RADIUS > GetScreenWidth())
+        {
+            pos.x = GetScreenWidth() - RADIUS;
+            vel.x *= -1;
+        }
+        if (pos.x < RADIUS)
+        {
+            pos.x = 2 * RADIUS;
+            vel.x *= -1;
         }
         // to check collision with other particles
     }

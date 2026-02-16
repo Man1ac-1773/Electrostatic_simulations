@@ -13,7 +13,6 @@ using namespace std;
 int main()
 {
     InitWindow(WIDTH, HEIGHT, "Coulombic force");
-    Charge::LoadTextures();
     SetTargetFPS(60);
     vector<unique_ptr<Charge>> charges;
     while (!WindowShouldClose())
