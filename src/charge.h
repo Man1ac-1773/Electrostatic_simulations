@@ -19,7 +19,7 @@ class Charge
     Vector2 pos;
     Vector2 vel;
     Vector2 force;
-    float radius;
+    float radius; // in case i want different radii for charges
     Color color;
     Charge(float _q, float _m, float _r, Vector2 _pos, Vector2 _vel = {0}, Vector2 _force = {0})
     {
@@ -41,24 +41,24 @@ class Charge
         vel = Vector2ClampValue(vel, 0, MAX_SPEED); // limit speed from blowing up
         pos += vel * deltaTime;
         // borders collision
-        if (pos.y + RADIUS > GetScreenHeight())
+        if (pos.y + radius > GetScreenHeight())
         {
-            pos.y = GetScreenHeight() - RADIUS;
+            pos.y = GetScreenHeight() - radius;
             vel.y *= -1;
         }
-        if (pos.y < RADIUS)
+        if (pos.y < radius)
         {
-            pos.y = 2 * RADIUS;
+            pos.y = 2 * radius;
             vel.y *= -1;
         }
-        if (pos.x + RADIUS > GetScreenWidth())
+        if (pos.x + radius > GetScreenWidth())
         {
-            pos.x = GetScreenWidth() - RADIUS;
+            pos.x = GetScreenWidth() - radius;
             vel.x *= -1;
         }
-        if (pos.x < RADIUS)
+        if (pos.x < radius)
         {
-            pos.x = 2 * RADIUS;
+            pos.x = 2 * radius;
             vel.x *= -1;
         }
         // to check collision with other particles
@@ -71,7 +71,7 @@ class Charge
         {
             if (c.get() == this) // prevent self check
                 continue;
-            if (Vector2DistanceSqr(c->pos, pos) <= 4 * RADIUS * RADIUS)
+            if (Vector2DistanceSqr(c->pos, pos) <= (radius + c->radius) * (radius + c->radius))
             {
                 // the charges are colliding
                 Vector2 normal = Vector2Normalize(c->pos - pos);
