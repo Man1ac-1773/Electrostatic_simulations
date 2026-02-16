@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <memory>
 #include <raylib.h>
 #include <raymath.h>
@@ -32,10 +33,6 @@ class Charge
     void Draw()
     {
         DrawCircleV(pos, radius, color);
-        float rot = atan2f(force.x, force.y) * RAD2DEG;
-        DrawTexturePro(arrow_tx, {0, 0, (float) arrow_tx.width, (float) arrow_tx.height},
-                       {pos.x, pos.y, (float) arrow_tx.width, (float) arrow_tx.height},
-                       {0, (float) arrow_tx.height / 2}, rot, WHITE);
     }
     void Update(float deltaTime)
     {
@@ -43,6 +40,7 @@ class Charge
         vel += (force / mass) * (deltaTime);
         vel = Vector2ClampValue(vel, 0, MAX_SPEED); // limit speed from blowing up
         pos += vel * deltaTime;
+        // borders collision
         if (pos.y + RADIUS > GetScreenHeight() || pos.y < RADIUS)
         {
             vel.y = -vel.y;
@@ -51,29 +49,36 @@ class Charge
         {
             vel.x = -vel.x;
         }
+        // to check collision with other particles
     }
     void ComputeForces(std::vector<std::unique_ptr<Charge>>& charges)
     {
-        ResetForce();
+        ResetForce(); // forgot to reset every frame on initial iteration
 
         for (auto& c : charges)
         {
             if (c.get() == this) // prevent self check
                 continue;
+            if (Vector2DistanceSqr(c->pos, pos) <= 4 * RADIUS * RADIUS)
+            {
+                // the charges are colliding
+                Vector2 normal = Vector2Normalize(c->pos - pos);
+                Vector2 rv = c->vel - vel;
+                float rvAlongNormal = Vector2DotProduct(rv, normal);
+                if (rvAlongNormal > 0)
+                    continue;
+                float e = 1.0f; // restitution
+                float j = -(1 + e) * rvAlongNormal;
+                j /= (1 / mass + 1 / c->mass);
+                Vector2 impulse = normal * j;
+                vel -= impulse / mass;
+                c->vel += impulse / c->mass;
+            }
             force += Vector2Normalize(pos - c->pos) * (K / (Vector2DistanceSqr(c->pos, pos) + EPSI)) * (q * c->q);
         }
     }
-    static void LoadTextures()
-    {
-        arrow_img = LoadImage("img/arrow.png");
-        ImageResize(&arrow_img, 10, 10);
-        arrow_tx = LoadTextureFromImage(arrow_img);
-        UnloadImage(arrow_img);
-    }
 
-  private:
-    inline static Image arrow_img;
-    inline static Texture2D arrow_tx;
+  protected:
     void ResetForce()
     {
         force = {0, 0};
@@ -92,7 +97,7 @@ class Electron : public Charge
 class Proton : public Charge
 {
   public:
-    Proton(Vector2 _pos, Vector2 _vel = {0}, Vector2 _force = {0}) : Charge(1, 1836, RADIUS, _pos, _vel, _force)
+    Proton(Vector2 _pos, Vector2 _vel = {0}, Vector2 _force = {0}) : Charge(1, 1800, RADIUS, _pos, _vel, _force)
     {
         color = BLUE;
     }
