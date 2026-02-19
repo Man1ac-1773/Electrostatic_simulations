@@ -5,7 +5,7 @@
 #include <memory>
 #include <raylib.h>
 
-#include "src/charge.h" // includes vector, raylib, raymath
+#include "src/Scenes.h" // includes everything lmao
 
 using namespace std;
 #define WIDTH 1000
@@ -14,30 +14,18 @@ int main()
 {
     InitWindow(WIDTH, HEIGHT, "Coulombic force");
     SetTargetFPS(60);
-    vector<unique_ptr<Charge>> charges;
+    unique_ptr<Scene> currentScene = make_unique<ParticleScene>();
+    currentScene->Init();
     while (!WindowShouldClose())
     {
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            charges.push_back(make_unique<Electron>(GetMousePosition()));
-        }
-        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-        {
-            charges.push_back(make_unique<Proton>(GetMousePosition()));
-        }
-        for (auto& c : charges)
-        {
-            c->ComputeForces(charges);
-            c->Update(GetFrameTime());
-        }
-        BeginDrawing();
         ClearBackground(BLACK);
-        for (auto& c : charges)
-        {
-            c->Draw();
-        }
+        // update of Scene handles input
+        currentScene->Update(GetFrameTime());
+        BeginDrawing();
+        currentScene->Render();
         DrawFPS(0, 0);
         EndDrawing();
     }
+    currentScene->Unload();
     CloseWindow();
 }

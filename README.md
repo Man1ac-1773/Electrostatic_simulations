@@ -2,22 +2,13 @@
 
 A group of files showcasing different things under electrostatic interactions and electric field visualiser. 
 
-Implemented 
-- Charge class
-- Inheritance into electron and proton class
-- Proton being 1836 times heavier than electron
-- Charge drawing
-- Force interactions
-    - Forgot to zero total force after each frame, caused nasty bug that was nearly impossible to pinpoint
-    - Coulomb constant required is very large for appreciable forces (visually pleasing). Defined in `src/charge.h` under `#define K` directive. 
-- Wall bouncing. Fixed occassional bleeding bug by updating position to be inside bounds. 
-- Particle collision. Implemented very roughly inside `ComputeForces()` in `src/charge.h`.
 
-TODO : 
-- Refactor particle collision logic into something more stable and more reusable. 
-    - Current implementation checks same pair twice in same frame, can cause later bugs. 
-    
-- ? Neutral particle?? 
-- Force direction, arrow, toggle?maybe
-
-
+### TODO : 
+- Refactor entire codebase into something more modular that can handle different display/scene modes for different simulations
+- Make charge class as just container. Is literally just information, no dependency on any maths or raylib. Let the integrator/dedicated math/physics module handle that
+    - This is because we want to demonstrate the difference between seperate math-modes or integration methods, so we need calculations to be seperate. 
+    - We also want a isStatic flag inside charge, to know if to keep this charge static or not. 
+- Make Individual scenes, that are called once per frame like Outpost zero and handle their own little simulation. 
+- Since there are a lot of things to render, it is helpful to make another renderer classes that handle rendering only that specific thing, like Field, charges, Potential etc. It should be stateless, taking input of the current system, and then just drawing it.  
+- The physics engine layer must handle all the charges related to that system, integration, motion, physics, and all optional toggle features RELATED TO PHYSICS, then pass rendering onto Renderer classes. 
+- Make a scene class that stores information about what type of simulation we are currently displaying. 
