@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <ostream>
+
 class Vec2
 {
   public:
@@ -88,6 +89,21 @@ class Vec2
     {
         double dot = x * b.x + y * b.y;
         return dot;
+    }
+
+    void Clamp(double min, double max)
+    {
+        double len = Length();
+        if (len > max)
+        {
+            x *= max / len;
+            y *= max / len;
+        }
+        if (len < min)
+        {
+            x *= min / len;
+            y *= min / len;
+        }
     }
     // =========== =========
 };

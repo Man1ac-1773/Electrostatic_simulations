@@ -2,7 +2,6 @@
 // It just throws a bunch of charges on the screen and let's
 // coloumbic force handle forces on them
 
-#include <memory>
 #include <raylib.h>
 
 #include "src/Scenes.h" // includes everything lmao

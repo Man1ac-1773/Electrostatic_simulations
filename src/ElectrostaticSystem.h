@@ -1,5 +1,4 @@
 #pragma once
-#include <cmath>
 #include <vector>
 
 #include "Charge.h"
@@ -55,50 +54,46 @@ class ElectrostaticSystem
             for (size_t j = i + 1; j < n; ++j)
             {
 
-                Vector2 r = {charges[j].pos.x - charges[i].pos.x, charges[j].pos.y - charges[i].pos.y};
+                Vec2 r = charges[j].pos - charges[i].pos;
                 float distSqr = r.x * r.x + r.y * r.y + epsilon * epsilon;
                 float invDist = 1.0f / std::sqrt(distSqr);
 
                 float forceMagnitude = K * charges[i].q * charges[j].q * invDist * invDist * invDist;
 
-                Vector2 force = {r.x * forceMagnitude, r.y * forceMagnitude};
+                Vec2 force = r * forceMagnitude;
 
-                charges[i].force.x += force.x;
-                charges[i].force.y += force.y;
-
-                charges[j].force.x -= force.x;
-                charges[j].force.y -= force.y;
+                charges[i].force -= force;
+                charges[j].force += force;
             }
         }
     }
     // return vector of electric field at a point due to system
-    Vector2 ComputeFieldAt(Vector2 point) const
+    Vec2 ComputeFieldAt(Vec2 point) const
     {
-        Vector2 E = {0, 0};
+        Vec2 E = {0, 0};
 
         for (const auto& c : charges)
         {
-            Vector2 r = {point.x - c.pos.x, point.y - c.pos.y};
+            Vec2 r = point - c.pos;
 
             float distSqr = r.x * r.x + r.y * r.y + epsilon * epsilon;
             float invDist = 1.0f / std::sqrt(distSqr);
 
             float coeff = K * c.q * invDist * invDist * invDist;
 
-            E.x += r.x * coeff;
-            E.y += r.y * coeff;
+            E += r * coeff;
         }
 
         return E;
     }
     // return potential at a point due to system
-    float ComputePotentialAt(Vector2 point) const
+    float ComputePotentialAt(Vec2 point) const
     {
         float V = 0.0f;
 
         for (const auto& c : charges)
         {
-            Vector2 r = {point.x - c.pos.x, point.y - c.pos.y};
+            Vec2 r = point - c.pos;
 
             float dist = std::sqrt(r.x * r.x + r.y * r.y + epsilon * epsilon);
 

@@ -8,6 +8,13 @@
 #include "ElectrostaticSystem.h"
 #include "Integrator.h"
 #include "Renderer.h"
+
+// helper to do what it says
+inline Vec2 Vector2ToVec2(Vector2 v1)
+{
+    return Vec2{v1.x, v1.y};
+}
+
 class Scene
 {
   public:
@@ -67,13 +74,13 @@ class ParticleScene : public Scene
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             // electron
-            Charge c = Electron(GetMousePosition());
+            Charge c = Electron(Vector2ToVec2(GetMousePosition()));
             system.AddCharge(c);
         }
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
         {
             // proton
-            Charge c = Proton(GetMousePosition());
+            Charge c = Proton(Vector2ToVec2(GetMousePosition()));
             system.AddCharge(c);
         }
     }

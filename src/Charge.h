@@ -1,21 +1,18 @@
 #pragma once
 
-// now everyone will implicitly have both
-#include <raylib.h>
-// -----
+#include "core/Vec2.h"
 #define RADIUS 5.0f
 struct Charge
 {
   public:
     float q;
     float mass;
-    Vector2 pos;
-    Vector2 vel;
-    Vector2 force;
+    Vec2 pos;
+    Vec2 vel;
+    Vec2 force;
     float radius; // in case i want different radii for charges
-    Color color;
     bool isStatic;
-    Charge(float _q, float _m, float _r, Vector2 _pos, Vector2 _vel = {0}, Vector2 _force = {0})
+    Charge(float _q, float _m, float _r, Vec2 _pos, Vec2 _vel = {0}, Vec2 _force = {0})
     {
         q = _q;
         mass = _m;
@@ -29,16 +26,10 @@ struct Charge
 
 struct Electron : public Charge
 {
-    Electron(Vector2 _pos, Vector2 _vel = {0}, Vector2 _force = {0}) : Charge(-1, 1, RADIUS, _pos, _vel, _force)
-    {
-        color = RED;
-    }
+    Electron(Vec2 _pos, Vec2 _vel = {0}, Vec2 _force = {0}) : Charge(-1, 1, RADIUS, _pos, _vel, _force) {}
 };
 
 struct Proton : public Charge
 {
-    Proton(Vector2 _pos, Vector2 _vel = {0}, Vector2 _force = {0}) : Charge(-1, 1836, RADIUS, _pos, _vel, _force)
-    {
-        color = BLUE;
-    }
+    Proton(Vec2 _pos, Vec2 _vel = {0}, Vec2 _force = {0}) : Charge(1, 1836, RADIUS, _pos, _vel, _force) {}
 };

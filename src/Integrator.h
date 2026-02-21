@@ -1,27 +1,9 @@
 // This file is the declaration of all integrators
 // going to be used by the simulation
 #pragma once
-#include <cmath>
-
 #include "ElectrostaticSystem.h"
 
 #define VEL_MAX 600.0f
-
-inline static Vector2 Vector2Clamp(Vector2 v, float min, float max)
-{
-    float v_length = std::sqrt(v.x * v.x + v.y * v.y);
-    if (v_length > max)
-    {
-        v.x *= max / v_length;
-        v.y *= max / v_length;
-    }
-    if (v_length < min)
-    {
-        v.x *= min / v_length;
-        v.y *= min / v_length;
-    }
-    return v;
-}
 
 // base template for an integrator
 class Integrator
@@ -48,14 +30,12 @@ class EulerIntegrator : public Integrator
                 continue;
 
             // semi-implicit Euler
-            Vector2 a = {c.force.x / c.mass, c.force.y / c.mass};
-            c.vel.x += a.x * dt;
-            c.vel.y += a.y * dt;
-            // limit velocity for better looking simulation
-            c.vel = Vector2Clamp(c.vel, 0, VEL_MAX);
+            Vec2 a = c.force / c.mass;
+            c.vel += a * dt;
 
-            c.pos.x += c.vel.x * dt;
-            c.pos.y += c.vel.y * dt;
+            // limit velocity for better looking simulation
+            c.vel.Clamp(0, VEL_MAX);
+            c.pos += c.vel * dt;
         }
     }
 };
