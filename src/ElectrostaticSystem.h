@@ -1,7 +1,9 @@
 #pragma once
+#include <memory>
 #include <vector>
 
 #include "Charge.h"
+#include "core/ForceLaw.h"
 
 // the system that each scene might have multiple of.
 // It stores charge, and is responsible only for
@@ -11,7 +13,10 @@
 class ElectrostaticSystem
 {
   public:
-    explicit ElectrostaticSystem(float k = 1000000.0f, float softening = 0.01f) : K(k), epsilon(softening) {}
+    explicit ElectrostaticSystem(float k = 1000000.0f, float softening = 0.01f)
+    {
+        interaction = new CoulombInteraction(k, softening);
+    }
 
     // add a new charge
     void AddCharge(const Charge& c)
@@ -34,7 +39,7 @@ class ElectrostaticSystem
     {
         return charges;
     }
-
+    // reset all forces on all charges
     void ResetForces()
     {
         for (auto& c : charges)
@@ -42,7 +47,7 @@ class ElectrostaticSystem
             c.force = {0, 0};
         }
     }
-
+    // re-evaluate forces on all charges of system
     void ComputeForces()
     {
         ResetForces();
@@ -54,50 +59,32 @@ class ElectrostaticSystem
             for (size_t j = i + 1; j < n; ++j)
             {
 
-                Vec2 r = charges[j].pos - charges[i].pos;
-                float distSqr = r.x * r.x + r.y * r.y + epsilon * epsilon;
-                float invDist = 1.0f / std::sqrt(distSqr);
-
-                float forceMagnitude = K * charges[i].q * charges[j].q * invDist * invDist * invDist;
-
-                Vec2 force = r * forceMagnitude;
-
+                Vec2 force = interaction->ComputeForce(charges[i], charges[j]);
                 charges[i].force -= force;
                 charges[j].force += force;
             }
         }
     }
-    // return vector of electric field at a point due to system
+    // Return vector of Electric Field at a point due to system
     Vec2 ComputeFieldAt(Vec2 point) const
     {
         Vec2 E = {0, 0};
 
         for (const auto& c : charges)
         {
-            Vec2 r = point - c.pos;
-
-            float distSqr = r.x * r.x + r.y * r.y + epsilon * epsilon;
-            float invDist = 1.0f / std::sqrt(distSqr);
-
-            float coeff = K * c.q * invDist * invDist * invDist;
-
-            E += r * coeff;
+            E += interaction->ComputeField(c, point);
         }
 
         return E;
     }
-    // return potential at a point due to system
+    // Return potential at a point due to system
     float ComputePotentialAt(Vec2 point) const
     {
         float V = 0.0f;
 
         for (const auto& c : charges)
         {
-            Vec2 r = point - c.pos;
-
-            float dist = std::sqrt(r.x * r.x + r.y * r.y + epsilon * epsilon);
-
-            V += K * c.q / dist;
+            V += interaction->ComputePotential(c, point);
         }
 
         return V;
@@ -105,7 +92,5 @@ class ElectrostaticSystem
 
   private:
     std::vector<Charge> charges;
-
-    float K;       // Coulomb constant
-    float epsilon; // softening parameter
+    InteractionLaw* interaction;
 };
